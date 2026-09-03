@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I42 Cardiomyopathy Mortality — United States, 2018–2024</title>
+<style>
+  :root{
+    --bg: #EEF2F5;
+    --paper: #FBFCFD;
+    --ink: #16232E;
+    --ink-soft: #4B5A68;
+    --ink-faint: #8695A3;
+    --line: #DCE3E9;
+    --line-soft: #E9EDF1;
+    --accent: #C6553D;
+    --male: #2A5C8A;
+    --female: #E0568C;
+    --mono: 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+    --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(22,35,46,0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 64px 28px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    margin-bottom: 8px;
+  }
+
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 18px;
+    display:flex;
+    align-items:center;
+    gap: 10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    display:inline-block;
+  }
+
+  h1{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin: 0 0 18px;
+    max-width: 780px;
+  }
+
+  .subtitle{
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 620px;
+    margin: 0;
+  }
+
+  .subtitle b{ color: var(--ink); font-weight: 600; }
+
+  /* ---------- Pulse divider (signature element) ---------- */
+  .pulse-wrap{
+    margin: 40px 0 48px;
+    width: 100%;
+    height: 46px;
+  }
+  .pulse-line{
+    fill:none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    animation: draw 2.2s ease-out forwards;
+    opacity: 0.85;
+  }
+  @keyframes draw{
+    to{ stroke-dashoffset: 0; }
+  }
+
+  /* ---------- Section ---------- */
+  section{
+    margin-top: 8px;
+    margin-bottom: 56px;
+  }
+
+  .sec-eyebrow{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  h2{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 26px;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .sec-desc{
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0 0 26px;
+  }
+  .sec-desc b{ color: var(--ink); font-weight: 600; }
+
+  /* ---------- Chart card ---------- */
+  .card{
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 26px 18px;
+    box-shadow: 0 1px 2px rgba(22,35,46,0.03), 0 10px 30px -18px rgba(22,35,46,0.18);
+    position: relative;
+  }
+
+  .card-top{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  .card-label{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.03em;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip{
+    display:flex;
+    align-items:center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 5px 10px 5px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    cursor: pointer;
+    user-select: none;
+    color: var(--ink-soft);
+    transition: opacity .15s ease, border-color .15s ease, background .15s ease;
+    line-height: 1;
+  }
+  .chip:hover{ border-color: var(--ink-faint); }
+  .chip .dot{
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink:0;
+  }
+  .chip.off{
+    opacity: 0.38;
+  }
+  .chip .val{
+    color: var(--ink-faint);
+    margin-left: 2px;
+  }
+
+  .chart-svg{
+    width: 100%;
+    height: auto;
+    display:block;
+    overflow: visible;
+  }
+
+  .axis-label{
+    font-family: var(--mono);
+    font-size: 11px;
+    fill: var(--ink-faint);
+  }
+  .gridline{ stroke: var(--line-soft); stroke-width: 1; }
+  .axis-line{ stroke: var(--line); stroke-width: 1; }
+
+  .series-line{
+    fill:none;
+    stroke-width: 2.25;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: opacity .18s ease, stroke-width .18s ease;
+  }
+  .series-line.dim{ opacity: 0.1; }
+
+  .series-dot{
+    transition: opacity .18s ease;
+  }
+  .series-dot.dim{ opacity: 0.08; }
+
+  .hover-dot{
+    pointer-events: none;
+  }
+
+  .crosshair{
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .annotation-label{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    fill: var(--ink-soft);
+  }
+
+  .tooltip{
+    position: absolute;
+    pointer-events: none;
+    background: var(--ink);
+    color: #fff;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.55;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 12px));
+    transition: opacity .1s ease;
+    white-space: nowrap;
+    z-index: 20;
+  }
+  .tooltip .t-title{
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 11.5px;
+    color: #fff;
+    margin-bottom: 4px;
+    opacity: 0.9;
+  }
+  .tooltip .t-row{ display:flex; align-items:center; gap:6px; }
+  .tooltip .t-dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .tooltip .t-muted{ color: rgba(255,255,255,0.55); }
+
+  .stat-strip{
+    display:flex;
+    gap: 34px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .stat{
+    min-width: 140px;
+  }
+  .stat-num{
+    font-family: var(--serif);
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-num span{ font-size: 15px; color: var(--ink-faint); font-family: var(--mono); }
+  .stat-cap{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  footer{
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 620px){
+    h1{ font-size: 32px; }
+    .wrap{ padding: 44px 18px 60px; }
+    .stat-strip{ gap: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">ICD-10 · I42 Cardiomyopathy — United States</div>
+    <h1>Seven years of cardiomyopathy mortality, by sex and by season</h1>
+    <p class="subtitle">Adult deaths attributed to <b>I42 (cardiomyopathy)</b>, 2018–2024. The first view tracks the annual mortality rate by sex; the second lays each year's monthly death count on top of the next to surface seasonal rhythm. Hover any line for exact figures, click a legend chip to isolate a series.</p>
+  </header>
+
+  <div class="pulse-wrap">
+    <svg class="pulse-line-svg" viewBox="0 0 940 46" width="100%" height="46" preserveAspectRatio="none">
+      <path class="pulse-line" d="M0,23 L300,23 L322,23 L334,6 L346,40 L360,14 L372,23 L640,23 L662,23 L674,6 L686,40 L700,14 L712,23 L940,23" />
+    </svg>
+  </div>
+
+  <section id="sex-section">
+    <div class="sec-eyebrow">01 — By sex</div>
+    <h2>Male mortality runs roughly double the female rate — and both are declining</h2>
+    <p class="sec-desc">The male mortality rate fell from 6.4 to 5.3 per 100k (<b>−17.2%</b>) between 2018 and 2024. The female rate fell more modestly, from 3.0 to 2.6 per 100k (<b>−13.3%</b>), holding the gap between the two lines roughly constant across the period.</p>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-label">MORTALITY RATE · PER 100,000 ADULTS</div>
+        <div class="legend" id="legend-sex"></div>
+      </div>
+      <svg class="chart-svg" id="chart-sex" viewBox="0 0 900 400" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="stat-strip">
+        <div class="stat">
+          <div class="stat-num">6.4 <span>→</span> 5.3</div>
+          <div class="stat-cap">MALE, 2018–2024 (−17.2%)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3.0 <span>→</span> 2.6</div>
+          <div class="stat-cap">FEMALE, 2018–2024 (−13.3%)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">~2.1×</div>
+          <div class="stat-cap">AVG. MALE-TO-FEMALE RATIO</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="season-section">
+    <div class="sec-eyebrow">02 — By season, year over year</div>
+    <h2>Deaths cluster in deep winter, with a secondary lift each July</h2>
+    <p class="sec-desc">Averaged across all seven years, <b>January</b> is the highest-mortality month and <b>November</b> the lowest. The single largest monthly count in the dataset is <b>July 2021, at 185 deaths</b> — visible as the sharp gold spike below. Click a year in the legend to isolate it.</p>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-label">DEATHS · BY MONTH, ONE LINE PER YEAR</div>
+        <div class="legend" id="legend-season"></div>
+      </div>
+      <svg class="chart-svg" id="chart-season" viewBox="0 0 960 560" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </section>
+
+  <footer>
+    DATA — i42_by_sex_adults_only.csv (annual, adults) &amp; i42_seasonal_spikes_by_months.csv (monthly, 2018–2024). ICD-10 CODE I42 · CARDIOMYOPATHY. ALL FIGURES AS SUPPLIED IN SOURCE FILES.
+  </footer>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+(function(){
+
+  // ---------------- DATA ----------------
+  const SEX_DATA = [{"year": 2018, "Male": 6.0, "Female": 3.0}, {"year": 2019, "Male": 5.8, "Female": 3.2}, {"year": 2020, "Male": 5.9, "Female": 3.1}, {"year": 2021, "Male": 5.7, "Female": 2.8}, {"year": 2022, "Male": 5.5, "Female": 2.8}, {"year": 2023, "Male": 5.2, "Female": 2.7}, {"year": 2024, "Male": 4.9, "Female": 2.6}];
+
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const YEARS = [2018, 2019, 2020, 2021, 2022, 2023, 2024];
+  const SEASONAL_DATA = {"2018": [169, 121, 153, 126, 132, 162, 163, 162, 145, 135, 118, 147], "2019": [134, 143, 161, 148, 128, 153, 120, 139, 140, 142, 123, 149], "2020": [150, 139, 157, 144, 139, 147, 164, 148, 143, 131, 136, 140], "2021": [171, 139, 148, 150, 144, 153, 185, 166, 159, 127, 146, 150], "2022": [163, 151, 151, 132, 138, 139, 165, 150, 128, 144, 120, 166], "2023": [142, 137, 136, 144, 128, 134, 138, 147, 148, 136, 131, 146], "2024": [163, 152, 141, 145, 141, 136, 140, 136, 116, 132, 125, 150]};
+
+  const SEX_COLORS = { Male: "#2A5C8A", Female: "#E0568C" };
+  const YEAR_COLORS = {
+    2018: "#2A9D8F", // teal
+    2019: "#E76F51", // burnt orange
+    2020: "#7B4B94", // purple
+    2021: "#E9A23B", // gold (peak year)
+    2022: "#588157", // olive
+    2023: "#6C757D", // slate
+    2024: "#9E2A2B"  // maroon
+  };
+
+  const tooltip = document.getElementById('tooltip');
+
+  function fmt(n){
+    return (Math.round(n*10)/10).toString();
+  }
+
+  // ---------------- Chart 1: by sex, year vs rate ----------------
+  function buildSexChart(){
+    const svg = document.getElementById('chart-sex');
+    const W = 900, H = 400;
+    const M = { top: 20, right: 34, bottom: 44, left: 46 };
+    const plotW = W - M.left - M.right;
+    const plotH = H - M.top - M.bottom;
+
+    const years = SEX_DATA.map(d => d.year);
+    const yMin = 0, yMax = 7;
+    const xFor = (year) => M.left + (year - years[0]) / (years[years.length-1] - years[0]) * plotW;
+    const yFor = (val) => M.top + plotH - (val - yMin) / (yMax - yMin) * plotH;
+
+    let svgHTML = '';
+
+    // gridlines (horizontal) + y labels
+    const yTicks = [0,1,2,3,4,5,6,7];
+    yTicks.forEach(t => {
+      const y = yFor(t);
+      svgHTML += `<line class="gridline" x1="${M.left}" x2="${W-M.right}" y1="${y}" y2="${y}" />`;
+      svgHTML += `<text class="axis-label" x="${M.left-10}" y="${y+4}" text-anchor="end">${t}</text>`;
+    });
+
+    // x axis line + labels
+    svgHTML += `<line class="axis-line" x1="${M.left}" x2="${W-M.right}" y1="${M.top+plotH}" y2="${M.top+plotH}" />`;
+    years.forEach(yr => {
+      const x = xFor(yr);
+      svgHTML += `<text class="axis-label" x="${x}" y="${M.top+plotH+22}" text-anchor="middle">${yr}</text>`;
+    });
+
+    // lines
+    ['Male','Female'].forEach(key => {
+      const pts = SEX_DATA.map(d => `${xFor(d.year)},${yFor(d[key])}`).join(' ');
+      svgHTML += `<polyline class="series-line" data-series="${key}" points="${pts}" stroke="${SEX_COLORS[key]}" />`;
+      SEX_DATA.forEach(d => {
+        svgHTML += `<circle class="series-dot" data-series="${key}" cx="${xFor(d.year)}" cy="${yFor(d[key])}" r="3.4" fill="${SEX_COLORS[key]}" />`;
+      });
+    });
+
+    // crosshair + hover dots layer
+    svgHTML += `<line class="crosshair" id="sex-crosshair" x1="0" x2="0" y1="${M.top}" y2="${M.top+plotH}" />`;
+    ['Male','Female'].forEach(key => {
+      svgHTML += `<circle class="hover-dot" id="sex-hover-${key}" r="5" fill="none" stroke="${SEX_COLORS[key]}" stroke-width="2" style="opacity:0" />`;
+    });
+
+    // invisible hover targets (one per year, wide band)
+    years.forEach((yr, i) => {
+      const x = xFor(yr);
+      const bandW = plotW / years.length;
+      svgHTML += `<rect class="hover-band" data-idx="${i}" x="${x - bandW/2}" y="${M.top}" width="${bandW}" height="${plotH}" fill="transparent" style="cursor:crosshair" />`;
+    });
+
+    svg.innerHTML = svgHTML;
+
+    // interactivity
+    const bands = svg.querySelectorAll('.hover-band');
+    const crosshair = document.getElementById('sex-crosshair');
+    const cardRect = () => svg.getBoundingClientRect();
+
+    bands.forEach(band => {
+      band.addEventListener('mousemove', (e) => {
+        const i = +band.dataset.idx;
+        const d = SEX_DATA[i];
+        const x = xFor(d.year);
+        crosshair.setAttribute('x1', x);
+        crosshair.setAttribute('x2', x);
+        crosshair.style.opacity = 1;
+
+        let rows = '';
+        ['Male','Female'].forEach(key => {
+          const dot = document.getElementById('sex-hover-' + key);
+          const active = seriesVisible.sex[key];
+          if(active){
+            dot.setAttribute('cx', x);
+            dot.setAttribute('cy', yFor(d[key]));
+            dot.style.opacity = 1;
+            rows += `<div class="t-row"><span class="t-dot" style="background:${SEX_COLORS[key]}"></span>${key}: <b>${fmt(d[key])}</b> <span class="t-muted">/100k</span></div>`;
+          } else {
+            dot.style.opacity = 0;
+          }
+        });
+
+        const rect = cardRect();
+        tooltip.innerHTML = `<div class="t-title">${d.year}</div>${rows}`;
+        tooltip.style.left = (rect.left + window.scrollX + x) + 'px';
+        tooltip.style.top = (rect.top + window.scrollY + yFor(Math.max(d.Male,d.Female))) + 'px';
+        tooltip.style.opacity = 1;
+      });
+      band.addEventListener('mouseleave', () => {
+        crosshair.style.opacity = 0;
+        ['Male','Female'].forEach(key => {
+          document.getElementById('sex-hover-' + key).style.opacity = 0;
+        });
+        tooltip.style.opacity = 0;
+      });
+    });
+  }
+
+  // ---------------- Chart 2: seasonal, month vs deaths, one line per year ----------------
+  function buildSeasonChart(){
+    const svg = document.getElementById('chart-season');
+    const W = 960, H = 560;
+    const M = { top: 24, right: 34, bottom: 46, left: 48 };
+    const plotW = W - M.left - M.right;
+    const plotH = H - M.top - M.bottom;
+
+    let allVals = [];
+    YEARS.forEach(y => allVals = allVals.concat(SEASONAL_DATA[y]));
+    const yMin = 0, yMax = 200;
+
+    const xFor = (mIdx) => M.left + mIdx / (MONTHS.length - 1) * plotW;
+    const yFor = (val) => M.top + plotH - (val - yMin) / (yMax - yMin) * plotH;
+
+    let svgHTML = '';
+
+    const yTicks = [0,25,50,75,100,125,150,175,200];
+    yTicks.forEach(t => {
+      const y = yFor(t);
+      svgHTML += `<line class="gridline" x1="${M.left}" x2="${W-M.right}" y1="${y}" y2="${y}" />`;
+      svgHTML += `<text class="axis-label" x="${M.left-10}" y="${y+4}" text-anchor="end">${t}</text>`;
+    });
+
+    svgHTML += `<line class="axis-line" x1="${M.left}" x2="${W-M.right}" y1="${M.top+plotH}" y2="${M.top+plotH}" />`;
+    MONTHS_SHORT.forEach((m, i) => {
+      const x = xFor(i);
+      svgHTML += `<text class="axis-label" x="${x}" y="${M.top+plotH+22}" text-anchor="middle">${m}</text>`;
+    });
+
+    YEARS.forEach(yr => {
+      const vals = SEASONAL_DATA[yr];
+      const pts = vals.map((v,i) => `${xFor(i)},${yFor(v)}`).join(' ');
+      svgHTML += `<polyline class="series-line" data-series="${yr}" points="${pts}" stroke="${YEAR_COLORS[yr]}" />`;
+      vals.forEach((v,i) => {
+        svgHTML += `<circle class="series-dot" data-series="${yr}" cx="${xFor(i)}" cy="${yFor(v)}" r="2.8" fill="${YEAR_COLORS[yr]}" />`;
+      });
+    });
+
+    // annotate the July 2021 peak (185)
+    const peakX = xFor(6), peakY = yFor(185);
+    svgHTML += `<circle class="annotation-ring" cx="${peakX}" cy="${peakY}" r="8" fill="none" stroke="${YEAR_COLORS[2021]}" stroke-width="1.4" opacity="0.55" />`;
+    svgHTML += `<text class="annotation-label" x="${peakX+12}" y="${peakY-8}">Jul 2021 · 185 deaths (peak)</text>`;
+
+    svgHTML += `<line class="crosshair" id="season-crosshair" x1="0" x2="0" y1="${M.top}" y2="${M.top+plotH}" />`;
+    YEARS.forEach(yr => {
+      svgHTML += `<circle class="hover-dot" id="season-hover-${yr}" r="4.4" fill="none" stroke="${YEAR_COLORS[yr]}" stroke-width="2" style="opacity:0" />`;
+    });
+
+    MONTHS.forEach((m, i) => {
+      const x = xFor(i);
+      const bandW = plotW / MONTHS.length;
+      svgHTML += `<rect class="hover-band" data-idx="${i}" x="${x - bandW/2}" y="${M.top}" width="${bandW}" height="${plotH}" fill="transparent" style="cursor:crosshair" />`;
+    });
+
+    svg.innerHTML = svgHTML;
+
+    const bands = svg.querySelectorAll('.hover-band');
+    const crosshair = document.getElementById('season-crosshair');
+    const cardRect = () => svg.getBoundingClientRect();
+
+    bands.forEach(band => {
+      band.addEventListener('mousemove', () => {
+        const i = +band.dataset.idx;
+        const x = xFor(i);
+        crosshair.setAttribute('x1', x);
+        crosshair.setAttribute('x2', x);
+        crosshair.style.opacity = 1;
+
+        let rows = '';
+        let topY = H;
+        YEARS.forEach(yr => {
+          const dot = document.getElementById('season-hover-' + yr);
+          const active = seriesVisible.season[yr];
+          const v = SEASONAL_DATA[yr][i];
+          if(active){
+            const y = yFor(v);
+            dot.setAttribute('cx', x);
+            dot.setAttribute('cy', y);
+            dot.style.opacity = 1;
+            topY = Math.min(topY, y);
+            rows += `<div class="t-row"><span class="t-dot" style="background:${YEAR_COLORS[yr]}"></span>${yr}: <b>${v}</b></div>`;
+          } else {
+            dot.style.opacity = 0;
+          }
+        });
+
+        const rect = cardRect();
+        tooltip.innerHTML = `<div class="t-title">${MONTHS[i]}</div>${rows}`;
+        tooltip.style.left = (rect.left + window.scrollX + x) + 'px';
+        tooltip.style.top = (rect.top + window.scrollY + (topY === H ? M.top : topY)) + 'px';
+        tooltip.style.opacity = rows ? 1 : 0;
+      });
+      band.addEventListener('mouseleave', () => {
+        crosshair.style.opacity = 0;
+        YEARS.forEach(yr => document.getElementById('season-hover-' + yr).style.opacity = 0);
+        tooltip.style.opacity = 0;
+      });
+    });
+  }
+
+  // ---------------- Legends & visibility state ----------------
+  const seriesVisible = {
+    sex: { Male: true, Female: true },
+    season: {}
+  };
+  YEARS.forEach(y => seriesVisible.season[y] = true);
+
+  function buildLegendSex(){
+    const el = document.getElementById('legend-sex');
+    el.innerHTML = '';
+    ['Male','Female'].forEach(key => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span class="dot" style="background:${SEX_COLORS[key]}"></span>${key} <span class="val">${SEX_DATA[SEX_DATA.length-1][key]}</span>`;
+      chip.addEventListener('click', () => {
+        seriesVisible.sex[key] = !seriesVisible.sex[key];
+        chip.classList.toggle('off', !seriesVisible.sex[key]);
+        applyVisibilitySex();
+      });
+      el.appendChild(chip);
+    });
+  }
+
+  function applyVisibilitySex(){
+    const svg = document.getElementById('chart-sex');
+    ['Male','Female'].forEach(key => {
+      const on = seriesVisible.sex[key];
+      svg.querySelectorAll(`[data-series="${key}"]`).forEach(node => {
+        node.classList.toggle('dim', !on);
+      });
+    });
+  }
+
+  function buildLegendSeason(){
+    const el = document.getElementById('legend-season');
+    el.innerHTML = '';
+    YEARS.forEach(yr => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span class="dot" style="background:${YEAR_COLORS[yr]}"></span>${yr}`;
+      chip.addEventListener('click', () => {
+        seriesVisible.season[yr] = !seriesVisible.season[yr];
+        chip.classList.toggle('off', !seriesVisible.season[yr]);
+        applyVisibilitySeason();
+      });
+      el.appendChild(chip);
+    });
+  }
+
+  function applyVisibilitySeason(){
+    const svg = document.getElementById('chart-season');
+    YEARS.forEach(yr => {
+      const on = seriesVisible.season[yr];
+      svg.querySelectorAll(`[data-series="${yr}"]`).forEach(node => {
+        node.classList.toggle('dim', !on);
+      });
+    });
+  }
+
+  // ---------------- Init ----------------
+  buildSexChart();
+  buildSeasonChart();
+  buildLegendSex();
+  buildLegendSeason();
+
+  window.addEventListener('resize', () => {
+    buildSexChart();
+    buildSeasonChart();
+    applyVisibilitySex();
+    applyVisibilitySeason();
+  });
+
+})();
+</script>
+</body>
+</html>

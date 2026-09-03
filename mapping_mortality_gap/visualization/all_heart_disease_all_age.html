@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardiomyopathy's Outsized Toll on Young Hearts, 2018–2024</title>
+<style>
+  :root{
+    --bg: #f6f5f2;
+    --panel: #ffffff;
+    --ink: #23201d;
+    --ink-soft: #6b655e;
+    --rule: #ddd8d0;
+    --accent: #8a1c14;
+
+    /* cause palette (stacked bar) */
+    --c-cardio: #8a1c14;
+    --c-cihd: #33454f;
+    --c-attack: #9c7f4f;
+    --c-failure: #c7c1b1;
+
+    /* age-group palette (trend line) */
+    --a-0-24: #8a1c14;
+    --a-25-44: #c1543a;
+    --a-45-64: #6b655e;
+    --a-65: #a39c8f;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+  }
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(16px, 4vw, 28px) clamp(14px, 4vw, 24px) clamp(24px, 5vw, 40px);
+  }
+  header{
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 26px;
+  }
+  h1{
+    font-size: clamp(21px, 4.2vw, 29px);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.3px;
+    font-weight: 700;
+    line-height: 1.18;
+  }
+  .subtitle{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(11.5px, 2.6vw, 13.5px);
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .subtitle-note{
+    margin-top: 4px;
+    font-size: clamp(10.5px, 2.4vw, 12px);
+  }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: clamp(14px, 3vw, 22px) clamp(14px, 3vw, 22px) 18px;
+    margin-bottom: 22px;
+  }
+  .card-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-bottom: 4px;
+  }
+  .card-title{
+    font-size: clamp(15px, 3vw, 18px);
+    font-weight: 700;
+    margin: 0;
+  }
+  .card-sub{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin: 3px 0 0;
+    max-width: 60ch;
+  }
+
+  .modebar{
+    display:flex;
+    gap: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    border: 1px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .modebar button{
+    border: none;
+    background: var(--panel);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  .modebar button + button{ border-left: 1px solid var(--ink); }
+  .modebar button.active{ background: var(--ink); color: #fff; }
+  .modebar button:hover:not(.active){ background: #efece6; }
+
+  #barSvg, #lineSvg{
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 10px;
+  }
+
+  .axis-line{ stroke: var(--rule); stroke-width: 1; }
+  .axis-label{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10.5px;
+    fill: var(--ink-soft);
+  }
+  .age-label{
+    font-family: 'Georgia', serif;
+    font-size: 13px;
+    fill: var(--ink);
+    font-weight: 700;
+  }
+  .age-total{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 9.5px;
+    fill: var(--ink-soft);
+  }
+  .seg{ cursor: pointer; transition: opacity .15s ease; stroke: var(--panel); stroke-width: 1; }
+  .seg-label{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    fill: #fff;
+    pointer-events: none;
+  }
+  .seg-label-out{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    fill: var(--ink);
+    pointer-events: none;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 14px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11.5px;
+    color: var(--ink);
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap: 7px;
+    cursor: pointer;
+    user-select: none;
+    padding: 3px 0;
+    transition: opacity .15s ease;
+  }
+  .legend-item.dim{ opacity: 0.35; }
+  .swatch{
+    width: 11px; height: 11px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-value{
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .trend-line{
+    fill: none;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: opacity .15s ease;
+  }
+  .trend-dot{ transition: opacity .15s ease; }
+  .crosshair{
+    stroke: var(--ink-soft);
+    stroke-width: 1;
+    stroke-dasharray: 2,3;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #tooltip{
+    position: fixed;
+    pointer-events: none;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11.5px;
+    line-height: 1.5;
+    padding: 8px 10px;
+    border-radius: 2px;
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 12px));
+    transition: opacity .1s ease;
+    z-index: 50;
+    max-width: 240px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  #tooltip b{ font-size: 12.5px; }
+  #tooltip .row{ display:flex; justify-content: space-between; gap: 14px; }
+  #tooltip .swatch{ display:inline-block; margin-right: 5px; }
+
+  .notes-card{
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    margin-bottom: 22px;
+  }
+  .notes-card h3{
+    font-size: 14px;
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+  .notes-card p{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+  .notes-card p:last-child{ margin-bottom: 0; }
+  .notes-card strong{ color: var(--accent); }
+
+  footer{
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 560px){
+    .card-head{ flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Cardiomyopathy's Outsized Toll on Young Hearts</h1>
+    <p class="subtitle">Share of heart&#8209;disease deaths by cause and age group &nbsp;&middot;&nbsp; 2018&ndash;2024 &nbsp;&middot;&nbsp; United States</p>
+    <p class="subtitle subtitle-note">Includes deaths from the four most common forms of heart disease: Cardiomyopathy, Chronic ischemic heart disease, Heart attack, and Heart failure.</p>
+  </header>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <p class="card-title">Cardiomyopathy dominates young hearts, then fades</p>
+        <p class="card-sub">Cumulative deaths, 2018&ndash;2024, by cause &mdash; within each age group. Hover a segment for detail; click a legend item to isolate a cause.</p>
+      </div>
+      <div class="modebar" id="barModeBar">
+        <button data-mode="pct" class="active">Share of deaths (%)</button>
+        <button data-mode="abs">Total deaths (log scale)</button>
+      </div>
+    </div>
+    <svg id="barSvg" viewBox="0 0 860 460" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend" id="barLegend"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <p class="card-title">Not a fluke: the pattern holds in every single year</p>
+        <p class="card-sub">Cardiomyopathy's share of each age group's heart&#8209;disease deaths, year by year. Hover the chart to compare all four groups at once.</p>
+      </div>
+    </div>
+    <svg id="lineSvg" viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend" id="lineLegend"></div>
+  </div>
+
+  <div class="notes-card">
+    <h3>Reading this chart correctly</h3>
+    <p><strong>Relative weight, not total volume.</strong> Cardiomyopathy still kills more people aged 65+ than any other age group in raw numbers &mdash; 93,236 deaths from 2018&ndash;2024, versus 1,713 among 0&ndash;24&#8209;year&#8209;olds. What this chart shows is the <em>share</em> of each age group's heart-disease deaths that Cardiomyopathy accounts for: about 58% in the 0&ndash;24 group versus roughly 3.5% in the 65+ group. Because heart disease is so much rarer in young people overall, Cardiomyopathy makes up a much larger slice of a much smaller pie &mdash; which is exactly why it deserves closer attention as a threat to younger adults, even though it is a minor contributor to the (far larger) total burden of heart disease in older adults.</p>
+    <p>Switch the top chart to "Total deaths (log scale)" to see the absolute picture side by side with the relative one.</p>
+  </div>
+
+  <footer>
+  
+  </footer>
+
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+/* ============================= DATA ============================= */
+const RAW = [{"year":2018,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":254},{"year":2018,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":70},{"year":2018,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":57},{"year":2018,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":61},{"year":2018,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1479},{"year":2018,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3251},{"year":2018,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":2110},{"year":2018,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":641},{"year":2018,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":5214},{"year":2018,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":43278},{"year":2018,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":24284},{"year":2018,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":6452},{"year":2018,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":14251},{"year":2018,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":206740},{"year":2018,"age_group":"65+","cause_of_death":"Heart Attack","deaths":82426},{"year":2018,"age_group":"65+","cause_of_death":"Heart Failure","deaths":76510},{"year":2019,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":249},{"year":2019,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":75},{"year":2019,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":46},{"year":2019,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":65},{"year":2019,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1431},{"year":2019,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3309},{"year":2019,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":2009},{"year":2019,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":703},{"year":2019,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":5028},{"year":2019,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":42084},{"year":2019,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":23180},{"year":2019,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":6782},{"year":2019,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":13681},{"year":2019,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":207278},{"year":2019,"age_group":"65+","cause_of_death":"Heart Attack","deaths":79287},{"year":2019,"age_group":"65+","cause_of_death":"Heart Failure","deaths":78671},{"year":2020,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":240},{"year":2020,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":58},{"year":2020,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":40},{"year":2020,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":71},{"year":2020,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1498},{"year":2020,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3668},{"year":2020,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":2381},{"year":2020,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":888},{"year":2020,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":5163},{"year":2020,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":45903},{"year":2020,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":24976},{"year":2020,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":7471},{"year":2020,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":13397},{"year":2020,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":219726},{"year":2020,"age_group":"65+","cause_of_death":"Heart Attack","deaths":81962},{"year":2020,"age_group":"65+","cause_of_death":"Heart Failure","deaths":77476},{"year":2021,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":274},{"year":2021,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":79},{"year":2021,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":50},{"year":2021,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":54},{"year":2021,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1564},{"year":2021,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3836},{"year":2021,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":2475},{"year":2021,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":925},{"year":2021,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":5009},{"year":2021,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":45755},{"year":2021,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":25079},{"year":2021,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":7817},{"year":2021,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":13085},{"year":2021,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":212348},{"year":2021,"age_group":"65+","cause_of_death":"Heart Attack","deaths":81656},{"year":2021,"age_group":"65+","cause_of_death":"Heart Failure","deaths":76296},{"year":2022,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":232},{"year":2022,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":60},{"year":2022,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":52},{"year":2022,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":56},{"year":2022,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1515},{"year":2022,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3590},{"year":2022,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":2279},{"year":2022,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":965},{"year":2022,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":4760},{"year":2022,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":43915},{"year":2022,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":22945},{"year":2022,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":7808},{"year":2022,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":13197},{"year":2022,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":215867},{"year":2022,"age_group":"65+","cause_of_death":"Heart Attack","deaths":78882},{"year":2022,"age_group":"65+","cause_of_death":"Heart Failure","deaths":79194},{"year":2023,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":227},{"year":2023,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":63},{"year":2023,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":45},{"year":2023,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":64},{"year":2023,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1440},{"year":2023,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3589},{"year":2023,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":1885},{"year":2023,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":887},{"year":2023,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":4469},{"year":2023,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":41483},{"year":2023,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":20325},{"year":2023,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":7609},{"year":2023,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":12990},{"year":2023,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":207321},{"year":2023,"age_group":"65+","cause_of_death":"Heart Attack","deaths":71371},{"year":2023,"age_group":"65+","cause_of_death":"Heart Failure","deaths":81321},{"year":2024,"age_group":"0-24","cause_of_death":"Cardiomyopathy","deaths":237},{"year":2024,"age_group":"0-24","cause_of_death":"Chronic Ischemic Heart Disease","deaths":72},{"year":2024,"age_group":"0-24","cause_of_death":"Heart Attack","deaths":47},{"year":2024,"age_group":"0-24","cause_of_death":"Heart Failure","deaths":58},{"year":2024,"age_group":"25-44","cause_of_death":"Cardiomyopathy","deaths":1440},{"year":2024,"age_group":"25-44","cause_of_death":"Chronic Ischemic Heart Disease","deaths":3601},{"year":2024,"age_group":"25-44","cause_of_death":"Heart Attack","deaths":1975},{"year":2024,"age_group":"25-44","cause_of_death":"Heart Failure","deaths":907},{"year":2024,"age_group":"45-64","cause_of_death":"Cardiomyopathy","deaths":4277},{"year":2024,"age_group":"45-64","cause_of_death":"Chronic Ischemic Heart Disease","deaths":39431},{"year":2024,"age_group":"45-64","cause_of_death":"Heart Attack","deaths":19257},{"year":2024,"age_group":"45-64","cause_of_death":"Heart Failure","deaths":7513},{"year":2024,"age_group":"65+","cause_of_death":"Cardiomyopathy","deaths":12635},{"year":2024,"age_group":"65+","cause_of_death":"Chronic Ischemic Heart Disease","deaths":208014},{"year":2024,"age_group":"65+","cause_of_death":"Heart Attack","deaths":69349},{"year":2024,"age_group":"65+","cause_of_death":"Heart Failure","deaths":83789}];
+
+const AGE_GROUPS = ["0-24","25-44","45-64","65+"];
+const CAUSES = ["Chronic Ischemic Heart Disease","Heart Attack","Heart Failure","Cardiomyopathy"]; // stack order bottom->top
+const CAUSE_SHORT = {
+  "Chronic Ischemic Heart Disease":"Chronic Ischemic",
+  "Heart Attack":"Heart Attack",
+  "Heart Failure":"Heart Failure",
+  "Cardiomyopathy":"Cardiomyopathy"
+};
+const CAUSE_COLOR = {
+  "Cardiomyopathy":"var(--c-cardio)",
+  "Chronic Ischemic Heart Disease":"var(--c-cihd)",
+  "Heart Attack":"var(--c-attack)",
+  "Heart Failure":"var(--c-failure)"
+};
+const AGE_COLOR = {
+  "0-24":"var(--a-0-24)",
+  "25-44":"var(--a-25-44)",
+  "45-64":"var(--a-45-64)",
+  "65+":"var(--a-65)"
+};
+const YEARS = [...new Set(RAW.map(d=>d.year))].sort((a,b)=>a-b);
+
+/* ============================= AGGREGATE ============================= */
+const sumByAgeCause = {};
+AGE_GROUPS.forEach(ag=>{ sumByAgeCause[ag]={}; CAUSES.forEach(c=> sumByAgeCause[ag][c]=0); });
+RAW.forEach(d=>{ sumByAgeCause[d.age_group][d.cause_of_death]+=d.deaths; });
+
+const totalByAge = {};
+AGE_GROUPS.forEach(ag=>{ totalByAge[ag]=CAUSES.reduce((s,c)=>s+sumByAgeCause[ag][c],0); });
+
+const pctByAgeCause = {};
+AGE_GROUPS.forEach(ag=>{ pctByAgeCause[ag]={}; CAUSES.forEach(c=> pctByAgeCause[ag][c]= sumByAgeCause[ag][c]/totalByAge[ag]*100 ); });
+
+const yearlyCardioPct = {};
+YEARS.forEach(y=>{
+  yearlyCardioPct[y] = {};
+  AGE_GROUPS.forEach(ag=>{
+    const rows = RAW.filter(d=>d.year===y && d.age_group===ag);
+    const total = rows.reduce((s,d)=>s+d.deaths,0);
+    const cardio = rows.find(d=>d.cause_of_death==="Cardiomyopathy").deaths;
+    yearlyCardioPct[y][ag] = total ? (cardio/total*100) : 0;
+  });
+});
+
+const fmtInt = n => n.toLocaleString("en-US");
+const fmtPct1 = n => n.toFixed(1)+"%";
+
+/* ============================= HELPERS ============================= */
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(name, attrs={}){
+  const e = document.createElementNS(SVGNS, name);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+const tooltip = document.getElementById("tooltip");
+function showTip(x, y, html){
+  tooltip.innerHTML = html;
+  tooltip.style.left = x+"px";
+  tooltip.style.top = y+"px";
+  tooltip.style.opacity = "1";
+}
+function hideTip(){ tooltip.style.opacity = "0"; }
+
+/* ============================= BAR CHART ============================= */
+const barSvg = document.getElementById("barSvg");
+const barLegendEl = document.getElementById("barLegend");
+let barMode = "pct";
+let barHighlight = null;
+
+const BAR = { W:860, H:460, mL:56, mR:20, mT:18, mB:78 };
+const barPlotW = BAR.W - BAR.mL - BAR.mR;
+const barPlotH = BAR.H - BAR.mT - BAR.mB;
+
+function buildBarLegend(){
+  barLegendEl.innerHTML = "";
+  CAUSES.slice().reverse().forEach(c=>{
+    const item = document.createElement("div");
+    item.className = "legend-item";
+    item.dataset.cause = c;
+    const totalDeaths = AGE_GROUPS.reduce((s,ag)=>s+sumByAgeCause[ag][c],0);
+    item.innerHTML = `<span class="swatch" style="background:${CAUSE_COLOR[c]}"></span><span>${c}</span><span class="legend-value">${fmtInt(totalDeaths)} total</span>`;
+    item.addEventListener("mouseenter", ()=> setBarHighlight(c));
+    item.addEventListener("mouseleave", ()=> setBarHighlight(null));
+    item.addEventListener("click", ()=> setBarHighlight(barHighlight===c ? null : c));
+    barLegendEl.appendChild(item);
+  });
+  refreshBarLegendDim();
+}
+function setBarHighlight(c){
+  barHighlight = c;
+  document.querySelectorAll("#barSvg .seg").forEach(seg=>{
+    seg.style.opacity = (!barHighlight || seg.dataset.cause===barHighlight) ? "1" : "0.25";
+  });
+  refreshBarLegendDim();
+}
+function refreshBarLegendDim(){
+  document.querySelectorAll("#barLegend .legend-item").forEach(item=>{
+    item.classList.toggle("dim", !!barHighlight && item.dataset.cause!==barHighlight);
+  });
+}
+
+function renderBarChart(){
+  barSvg.innerHTML = "";
+  const g = el("g");
+  barSvg.appendChild(g);
+
+  const slotW = barPlotW / AGE_GROUPS.length;
+
+  if(barMode === "pct"){
+    // gridlines 0,20,40,60,80,100
+    for(let p=0; p<=100; p+=20){
+      const y = BAR.mT + barPlotH - (p/100)*barPlotH;
+      g.appendChild(el("line",{class:"axis-line", x1:BAR.mL, x2:BAR.W-BAR.mR, y1:y, y2:y}));
+      const t = el("text",{class:"axis-label", x:BAR.mL-8, y:y+3, "text-anchor":"end"});
+      t.textContent = p+"%";
+      g.appendChild(t);
+    }
+    AGE_GROUPS.forEach((ag, i)=>{
+      const cx = BAR.mL + slotW*i + slotW/2;
+      const barW = Math.min(96, slotW*0.5);
+      let cum = 0;
+      CAUSES.forEach(c=>{
+        const pct = pctByAgeCause[ag][c];
+        const h = (pct/100)*barPlotH;
+        const y = BAR.mT + barPlotH - cum - h;
+        const rect = el("rect",{
+          class:"seg", "data-cause":c, "data-age":ag,
+          x: cx-barW/2, y:y, width:barW, height:Math.max(h,0.01),
+          fill: CAUSE_COLOR[c]
+        });
+        rect.addEventListener("mousemove", (ev)=>{
+          showTip(ev.clientX, ev.clientY, `<b>${ag}</b> &middot; ${c}<div class="row"><span><span class="swatch" style="background:${CAUSE_COLOR[c]};width:8px;height:8px;display:inline-block;border-radius:2px;"></span>${fmtPct1(pct)} of group's deaths</span></div><div class="row">${fmtInt(sumByAgeCause[ag][c])} deaths, 2018&ndash;2024</div>`);
+        });
+        rect.addEventListener("mouseleave", hideTip);
+        g.appendChild(rect);
+        if(h > 16){
+          const label = el("text",{class:"seg-label", x:cx, y:y+h/2+4, "text-anchor":"middle", "font-size": h>28?"12":"9.5"});
+          label.textContent = fmtPct1(pct);
+          if(c!=="Cardiomyopathy" && CAUSE_COLOR[c]==="var(--c-failure)"){ label.setAttribute("fill","var(--ink)"); }
+          g.appendChild(label);
+        }
+        cum += h;
+      });
+      // baseline age label
+      const lbl = el("text",{class:"age-label", x:cx, y:BAR.mT+barPlotH+24, "text-anchor":"middle"});
+      lbl.textContent = ag;
+      g.appendChild(lbl);
+      const tot = el("text",{class:"age-total", x:cx, y:BAR.mT+barPlotH+40, "text-anchor":"middle"});
+      tot.textContent = "n = "+fmtInt(totalByAge[ag]);
+      g.appendChild(tot);
+    });
+  } else {
+    // absolute grouped bars, log scale
+    const minV = 100, maxV = 2000000;
+    const logMin = Math.log10(minV), logMax = Math.log10(maxV);
+    const yFor = v => BAR.mT + barPlotH - ((Math.log10(Math.max(v,minV))-logMin)/(logMax-logMin))*barPlotH;
+    const ticks = [100,1000,10000,100000,1000000];
+    const tickLbl = {100:"100",1000:"1K",10000:"10K",100000:"100K",1000000:"1M"};
+    ticks.forEach(v=>{
+      const y = yFor(v);
+      g.appendChild(el("line",{class:"axis-line", x1:BAR.mL, x2:BAR.W-BAR.mR, y1:y, y2:y}));
+      const t = el("text",{class:"axis-label", x:BAR.mL-8, y:y+3, "text-anchor":"end"});
+      t.textContent = tickLbl[v];
+      g.appendChild(t);
+    });
+    const nC = CAUSES.length;
+    const groupInnerW = Math.min(140, slotW*0.72);
+    const barW = groupInnerW/nC - 4;
+    AGE_GROUPS.forEach((ag, i)=>{
+      const cx = BAR.mL + slotW*i + slotW/2;
+      const startX = cx - groupInnerW/2;
+      CAUSES.forEach((c, j)=>{
+        const v = sumByAgeCause[ag][c];
+        const y = yFor(v);
+        const x = startX + j*(barW+4);
+        const baseY = BAR.mT + barPlotH;
+        const rect = el("rect",{
+          class:"seg","data-cause":c,"data-age":ag,
+          x:x, y:y, width:barW, height:Math.max(baseY-y,0.5),
+          fill: CAUSE_COLOR[c]
+        });
+        rect.addEventListener("mousemove",(ev)=>{
+          showTip(ev.clientX, ev.clientY, `<b>${ag}</b> &middot; ${c}<div class="row">${fmtInt(v)} deaths, 2018&ndash;2024</div><div class="row">${fmtPct1(pctByAgeCause[ag][c])} of group's heart-disease deaths</div>`);
+        });
+        rect.addEventListener("mouseleave", hideTip);
+        g.appendChild(rect);
+      });
+      const lbl = el("text",{class:"age-label", x:cx, y:BAR.mT+barPlotH+24, "text-anchor":"middle"});
+      lbl.textContent = ag;
+      g.appendChild(lbl);
+      const tot = el("text",{class:"age-total", x:cx, y:BAR.mT+barPlotH+40, "text-anchor":"middle"});
+      tot.textContent = "n = "+fmtInt(totalByAge[ag]);
+      g.appendChild(tot);
+    });
+  }
+  setBarHighlight(barHighlight);
+}
+
+document.getElementById("barModeBar").addEventListener("click",(ev)=>{
+  const btn = ev.target.closest("button");
+  if(!btn) return;
+  barMode = btn.dataset.mode;
+  document.querySelectorAll("#barModeBar button").forEach(b=>b.classList.toggle("active", b===btn));
+  renderBarChart();
+});
+
+/* ============================= LINE CHART ============================= */
+const lineSvg = document.getElementById("lineSvg");
+const lineLegendEl = document.getElementById("lineLegend");
+const hiddenAges = new Set();
+
+const LN = { W:860, H:400, mL:52, mR:24, mT:18, mB:44 };
+const lnPlotW = LN.W - LN.mL - LN.mR;
+const lnPlotH = LN.H - LN.mT - LN.mB;
+const yMax = 70;
+const xFor = (yi) => LN.mL + (yi/(YEARS.length-1))*lnPlotW;
+const yFor = (v) => LN.mT + lnPlotH - (v/yMax)*lnPlotH;
+
+function buildLineLegend(){
+  lineLegendEl.innerHTML = "";
+  AGE_GROUPS.forEach(ag=>{
+    const item = document.createElement("div");
+    item.className = "legend-item";
+    item.dataset.age = ag;
+    const latest = yearlyCardioPct[YEARS[YEARS.length-1]][ag];
+    item.innerHTML = `<span class="swatch" style="background:${AGE_COLOR[ag]}"></span><span>${ag}</span><span class="legend-value">${fmtPct1(latest)} in 2024</span>`;
+    item.addEventListener("click", ()=>{
+      if(hiddenAges.has(ag)) hiddenAges.delete(ag); else hiddenAges.add(ag);
+      item.classList.toggle("dim", hiddenAges.has(ag));
+      renderLineChart();
+    });
+    lineLegendEl.appendChild(item);
+  });
+}
+
+function renderLineChart(){
+  lineSvg.innerHTML = "";
+
+  const g = el("g");
+  lineSvg.appendChild(g);
+
+  // gridlines
+  for(let p=0; p<=yMax; p+=10){
+    const y = yFor(p);
+    g.appendChild(el("line",{class:"axis-line", x1:LN.mL, x2:LN.W-LN.mR, y1:y, y2:y}));
+    const t = el("text",{class:"axis-label", x:LN.mL-8, y:y+3, "text-anchor":"end"});
+    t.textContent = p+"%";
+    g.appendChild(t);
+  }
+  // x axis labels
+  YEARS.forEach((y,i)=>{
+    const x = xFor(i);
+    const t = el("text",{class:"axis-label", x:x, y:LN.mT+lnPlotH+22, "text-anchor":"middle"});
+    t.textContent = y;
+    g.appendChild(t);
+  });
+
+  const crosshair = el("line",{class:"crosshair", x1:0, x2:0, y1:LN.mT, y2:LN.mT+lnPlotH});
+  g.appendChild(crosshair);
+
+  const dotsByYear = YEARS.map(()=>[]);
+
+  // draw in order so young (red) lines render on top of old (gray) lines
+  const order = ["65+","45-64","25-44","0-24"];
+  order.forEach(ag=>{
+    if(hiddenAges.has(ag)) return;
+    const pts = YEARS.map((y,i)=>[xFor(i), yFor(yearlyCardioPct[y][ag])]);
+    const d = pts.map((p,i)=> (i===0?"M":"L")+p[0].toFixed(2)+","+p[1].toFixed(2)).join(" ");
+    const path = el("path",{
+      class:"trend-line", d:d,
+      stroke: AGE_COLOR[ag]
+    });
+    g.appendChild(path);
+
+    pts.forEach((p,i)=>{
+      const dot = el("circle",{class:"trend-dot", cx:p[0], cy:p[1], r:3.6, fill:AGE_COLOR[ag], stroke:"#fff", "stroke-width":1.2});
+      g.appendChild(dot);
+      dotsByYear[i].push({ag, val:yearlyCardioPct[YEARS[i]][ag], color:AGE_COLOR[ag]});
+    });
+  });
+
+  // hover overlay per year column
+  YEARS.forEach((y,i)=>{
+    const x = xFor(i);
+    const hoverW = lnPlotW/YEARS.length;
+    const rect = el("rect",{x:x-hoverW/2, y:LN.mT, width:hoverW, height:lnPlotH, fill:"transparent"});
+    rect.addEventListener("mousemove",(ev)=>{
+      crosshair.setAttribute("x1", x); crosshair.setAttribute("x2", x);
+      crosshair.style.opacity = "1";
+      const rows = dotsByYear[i].slice().sort((a,b)=>b.val-a.val)
+        .map(r=>`<div class="row"><span><span class="swatch" style="background:${r.color};width:8px;height:8px;display:inline-block;border-radius:2px;"></span>${r.ag}</span><span>${fmtPct1(r.val)}</span></div>`).join("");
+      showTip(ev.clientX, ev.clientY, `<b>${y}</b>${rows}`);
+    });
+    rect.addEventListener("mouseleave", ()=>{ crosshair.style.opacity="0"; hideTip(); });
+    g.appendChild(rect);
+  });
+}
+
+/* ============================= INIT ============================= */
+buildBarLegend();
+renderBarChart();
+buildLineLegend();
+renderLineChart();
+
+window.addEventListener("resize", ()=>{ /* viewBox scaling handles responsiveness */ });
+</script>
+</body>
+</html>

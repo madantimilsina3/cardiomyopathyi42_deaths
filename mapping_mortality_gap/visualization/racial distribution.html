@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardiomyopathy Mortality by Race &amp; Ethnicity, 2018–2024</title>
+<style>
+  :root{
+    --bg: #F6F3EC;
+    --card: #FFFFFF;
+    --card-border: #E4DFD1;
+    --ink: #2A2822;
+    --ink-soft: #63604F;
+    --ink-faint: #8C8875;
+    --rule: #DDD7C6;
+    --track: #E9E4D6;
+
+    --c-black: #2C6E6F;
+    --c-black-soft: #DCE9E9;
+    --c-aian: #C1594A;
+    --c-aian-soft: #F3DFDA;
+    --c-white: #C99A2E;
+    --c-white-soft: #F2E7CB;
+    --c-other: #6E6C8C;
+    --c-other-soft: #E2E1EB;
+    --c-asian: #7F9463;
+    --c-asian-soft: #E4E9DA;
+    --c-pi: #A15D3B;
+    --c-pi-soft: #EBDAD0;
+
+    --heat-lo: #F4EEDD;
+    --heat-hi: #7A2418;
+
+    --radius: 10px;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "SF Mono", "Courier New", monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  .wrap{ max-width: 1080px; margin: 0 auto; padding: 48px 28px 80px; }
+
+  /* ---------- Header ---------- */
+  header.report-head{
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 28px;
+    margin-bottom: 32px;
+  }
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--c-aian);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  h1{
+    font-family: var(--serif);
+    font-size: 40px;
+    line-height: 1.12;
+    font-weight: 400;
+    margin: 0 0 12px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .dek{
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 700px;
+    margin: 0 0 4px;
+  }
+  .meta-line{
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-top: 14px;
+    font-family: var(--mono);
+    letter-spacing: .01em;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .tab-btn{
+    appearance: none;
+    background: none;
+    border: none;
+    font-family: var(--sans);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding: 10px 4px;
+    margin-right: 26px;
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .tab-btn:hover{ color: var(--ink); }
+  .tab-btn.active{ color: var(--ink); border-bottom-color: var(--c-aian); }
+
+  .tab-panel{ display: none; }
+  .tab-panel.active{ display: block; }
+
+  /* ---------- Cards ---------- */
+  .panel-card{
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 28px 30px 26px;
+    margin-bottom: 22px;
+  }
+  .panel-card h2{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .panel-card p.sub{
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    margin: 0 0 20px;
+    max-width: 640px;
+  }
+
+  .callout{
+    background: #FBF7EC;
+    border: 1px solid #E9DCB8;
+    border-left: 4px solid var(--c-pi);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #4A3A22;
+    margin: 4px 0 22px;
+    line-height: 1.6;
+  }
+  .callout b{ color: #382C15; }
+
+  /* ---------- Horizontal bar chart ---------- */
+  .hbar-row{ display:flex; align-items:center; margin-bottom: 12px; }
+  .hbar-label{
+    width: 210px;
+    flex: 0 0 210px;
+    font-size: 13.5px;
+    color: var(--ink);
+    text-align: right;
+    padding-right: 14px;
+    font-weight: 500;
+  }
+  .hbar-track{
+    flex: 1;
+    background: var(--track);
+    border-radius: 4px;
+    height: 30px;
+    position: relative;
+  }
+  .hbar-fill{
+    height: 100%;
+    border-radius: 4px;
+    transition: filter .12s ease;
+    cursor: default;
+  }
+  .hbar-fill:hover{ filter: brightness(1.08); }
+  .hbar-value{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .axis-caption{
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 14px;
+    padding-left: 224px;
+    letter-spacing: .02em;
+  }
+
+  /* ---------- Vertical bar chart ---------- */
+  .vchart-svg{ width:100%; height:auto; display:block; }
+  .vbar{ cursor: default; transition: filter .12s ease; }
+  .vbar:hover{ filter: brightness(1.08); }
+
+  /* ---------- Legend chips ---------- */
+  .legend-row{
+    display:flex; flex-wrap:wrap; gap: 16px 22px;
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule);
+  }
+  .legend-chip{ display:flex; align-items:center; gap:7px; font-size: 12.5px; color: var(--ink-soft); }
+  .legend-swatch{ width:11px; height:11px; border-radius: 2.5px; display:inline-block; }
+
+  /* ---------- Detail table (heatmap) ---------- */
+  .detail-header-row{
+    display:flex; align-items:flex-start; justify-content:space-between; gap: 20px; flex-wrap: wrap;
+  }
+  .mode-toggle{
+    display:inline-flex; background: var(--track); border-radius: 999px; padding: 3px;
+    flex: 0 0 auto;
+  }
+  .mode-btn{
+    appearance:none; border:none; background:none; font-family: var(--sans);
+    font-size:12.5px; font-weight:600; color: var(--ink-faint);
+    padding: 7px 15px; border-radius: 999px; cursor:pointer; transition: all .15s ease;
+  }
+  .mode-btn.active{ background: var(--ink); color: #fff; }
+
+  .table-scroll{ overflow-x: auto; margin-top: 6px; border-radius: 6px; }
+  table.heat{
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 780px;
+    font-size: 13px;
+  }
+  table.heat thead th{
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 700;
+    padding: 6px 8px 10px;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  table.heat thead th.subgroup-head{ text-align:left; padding-left: 4px; cursor: default; }
+  table.heat thead th.year-head{ cursor: pointer; width: 64px; }
+  table.heat thead th.year-head:hover{ color: var(--ink); }
+  table.heat thead th.avg-head{ width: 78px; color: var(--ink); font-weight: 800; }
+
+  table.heat tbody tr.section-label td{
+    padding: 16px 4px 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ink-faint);
+    font-weight: 700;
+    border-bottom: 1px solid var(--rule);
+  }
+  table.heat tbody tr.section-label:first-child td{ padding-top: 2px; }
+
+  table.heat tbody td.subgroup-cell{
+    padding: 7px 10px 7px 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  table.heat tbody td.subgroup-cell .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    margin-right: 7px; vertical-align: middle;
+  }
+  table.heat tbody td.val-cell{
+    text-align:center;
+    padding: 3px;
+    position: relative;
+  }
+  table.heat tbody td.val-cell .cell-inner{
+    display:flex; align-items:center; justify-content:center;
+    height: 34px; border-radius: 4px; font-family: var(--mono);
+    font-size: 12.5px; font-weight: 600; position: relative;
+  }
+  table.heat tbody td.val-cell.na .cell-inner{
+    background: repeating-linear-gradient(135deg, #EDE8DA, #EDE8DA 4px, #E3DDCB 4px, #E3DDCB 8px);
+    color: transparent;
+  }
+  table.heat tbody td.val-cell.avg .cell-inner{ font-weight: 800; }
+  table.heat tbody td.val-cell .unstable-mark{
+    position:absolute; top: 4px; right: 6px; font-size: 9px; line-height:1;
+  }
+
+  .legend-scale{
+    display:flex; align-items:center; gap: 10px; margin-top: 22px; font-size: 11.5px; color: var(--ink-faint);
+  }
+  .scale-bar{
+    height: 10px; width: 160px; border-radius: 5px;
+    background: linear-gradient(to right, var(--heat-lo), var(--heat-hi));
+    border: 1px solid var(--rule);
+  }
+  .legend-extra{ font-size: 11.5px; color: var(--ink-faint); margin-top: 8px; display:flex; gap:22px; flex-wrap:wrap; }
+  .legend-extra .hatch-sample{
+    display:inline-block; width:16px; height:11px; vertical-align:middle; margin-right:6px;
+    background: repeating-linear-gradient(135deg, #EDE8DA, #EDE8DA 4px, #E3DDCB 4px, #E3DDCB 8px);
+    border-radius:2px; border: 1px solid var(--rule);
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--ink-faint);
+    line-height: 1.7;
+  }
+
+  /* ---------- Tooltip ---------- */
+  #tooltip{
+    position: fixed;
+    pointer-events: none;
+    background: #26241E;
+    color: #F5F2E8;
+    font-size: 12.5px;
+    line-height: 1.5;
+    padding: 9px 12px;
+    border-radius: 6px;
+    max-width: 240px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .1s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  }
+  #tooltip b{ color: #fff; }
+  #tooltip.show{ opacity: 1; }
+
+  @media (max-width: 640px){
+    h1{ font-size: 30px; }
+    .hbar-label{ width: 130px; flex-basis: 130px; font-size: 12px; }
+    .axis-caption{ padding-left: 144px; }
+    .panel-card{ padding: 20px 16px; }
+  }
+
+  @media print{
+    body{ background: #fff; }
+    .tabs{ display:none; }
+    .tab-panel{ display:block !important; }
+    .panel-card{ break-inside: avoid; border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="report-head">
+    <div class="eyebrow">Mortality Data Report · U.S. Adults</div>
+    <h1>Cardiomyopathy mortality by race &amp; ethnicity</h1>
+    <p class="dek">How death rates from cardiomyopathy (ICD-10 code I42) compare across racial and ethnic groups, and how the picture changes once broad categories are broken into detailed subgroups.</p>
+    <div class="meta-line">DATA YEARS 2018–2024 &nbsp;·&nbsp; ADULT POPULATION &nbsp;·&nbsp; RATES PER 100,000</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="detail">Detailed Breakdown</button>
+  </nav>
+
+  <!-- ============ TAB 1: OVERVIEW ============ -->
+  <section class="tab-panel active" id="tab-overview">
+
+    <div class="panel-card">
+      <h2>Mortality rate by group</h2>
+      <p class="sub">Deaths per 100,000 adults, 2018–2024 combined. Sorted highest to lowest rate.</p>
+      <div id="chart-rate"></div>
+      <div class="axis-caption">Deaths per 100,000 adult population (2018–2024 combined)</div>
+      <div class="legend-row" id="legend-row-1"></div>
+    </div>
+
+    <div class="callout" id="callout-text"></div>
+
+    <div class="panel-card">
+      <h2>Total deaths by group</h2>
+      <p class="sub">Total number of adult cardiomyopathy deaths, 2018–2024 combined. Sorted highest to lowest count.</p>
+      <div id="chart-deaths"></div>
+    </div>
+
+  </section>
+
+  <!-- ============ TAB 2: DETAILED BREAKDOWN ============ -->
+  <section class="tab-panel" id="tab-detail">
+
+    <div class="panel-card">
+      <div class="detail-header-row">
+        <div>
+          <h2>Every group, by year</h2>
+          <p class="sub">Asian and Native Hawaiian / Pacific Islander subgroups, shown alongside the broader Black, White, American Indian/Alaska Native and Other categories for direct comparison. Sorted by 7-year average rate, highest to lowest.</p>
+        </div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="rate">Rate per 100k</button>
+          <button class="mode-btn" data-mode="deaths">Death count</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="heat" id="heat-table"></table>
+      </div>
+      <div class="legend-scale">
+        <span>Lower</span>
+        <span class="scale-bar"></span>
+        <span>Higher rate</span>
+      </div>
+      <div class="legend-extra">
+        <span><span class="hatch-sample"></span>Not separately reported that year</span>
+        <span>⬤<sup style="font-size:9px;"> </sup> next to a value = fewer than 10 deaths that year — treat as unstable</span>
+      </div>
+    </div>
+
+  </section>
+
+  <footer>
+    Source: underlying cause of death data, adults, ICD-10 code I42 (cardiomyopathy), 2018–2024. Rates are deaths per 100,000 population within each group and year; categories with fewer than 10 recorded deaths in a given year are statistically unstable and are flagged accordingly. Race/ethnicity subgroup detail is not available for White, Black, or American Indian/Alaska Native categories in the source data, so those groups are shown at the broad-category level only.
+  </footer>
+
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const DATA = {"years": ["2018", "2019", "2020", "2021", "2022", "2023", "2024"], "broadSummary": [{"key": "aian", "group": "American Indian / Alaska Native", "deaths": 251, "population": 36946234.0, "rate": 0.7}, {"key": "black", "group": "Black", "deaths": 3892, "population": 309563565.0, "rate": 1.3}, {"key": "other", "group": "Other / Multiracial", "deaths": 131, "population": 151793645.5, "rate": 0.1}, {"key": "white", "group": "White", "deaths": 7284, "population": 1611192215.0, "rate": 0.5}, {"key": "asian", "group": "Asian", "deaths": 278, "population": 76891624.0, "rate": 0.4}, {"key": "pi", "group": "Native Hawaiian / Pacific Islander", "deaths": 57, "population": 1648183.0, "rate": 3.5}], "detailSectionA": [{"key": "pi", "name": "Other Pacific Islander", "category": "Native Hawaiian / Pacific Islander", "years": {"2021": {"deaths": 3, "rate": 4.1}, "2022": {"deaths": 5, "rate": 5.4}, "2023": {"deaths": 6, "rate": 7.2}, "2024": {"deaths": 3, "rate": 3.7}}, "avg_deaths": 17, "avg_rate": 5.2}, {"key": "pi", "name": "Samoan", "category": "Native Hawaiian / Pacific Islander", "years": {"2021": {"deaths": 13, "rate": 7.8}, "2022": {"deaths": 9, "rate": 5.5}, "2023": {"deaths": 5, "rate": 2.7}, "2024": {"deaths": 7, "rate": 4.2}}, "avg_deaths": 34, "avg_rate": 5.0}, {"key": "asian", "name": "Other Asian", "category": "Asian", "years": {"2021": {"deaths": 15, "rate": 1.6}, "2022": {"deaths": 22, "rate": 2.2}, "2023": {"deaths": 14, "rate": 1.3}, "2024": {"deaths": 14, "rate": 1.1}}, "avg_deaths": 65, "avg_rate": 1.5}, {"key": "pi", "name": "Guamanian or Chamorro", "category": "Native Hawaiian / Pacific Islander", "years": {"2023": {"deaths": 1, "rate": 1.1}}, "avg_deaths": 1, "avg_rate": 1.1}, {"key": "asian", "name": "Japanese", "category": "Asian", "years": {"2018": {"deaths": 15, "rate": 1.9}, "2019": {"deaths": 13, "rate": 1.7}, "2020": {"deaths": 13, "rate": 1.7}, "2021": {"deaths": 1, "rate": 0.1}, "2022": {"deaths": 2, "rate": 0.3}, "2023": {"deaths": 1, "rate": 0.1}}, "avg_deaths": 45, "avg_rate": 1.0}, {"key": "pi", "name": "Hawaiian", "category": "Native Hawaiian / Pacific Islander", "years": {"2021": {"deaths": 1, "rate": 0.5}, "2022": {"deaths": 1, "rate": 0.5}, "2023": {"deaths": 3, "rate": 1.7}}, "avg_deaths": 5, "avg_rate": 0.9}, {"key": "asian", "name": "Asian Indian", "category": "Asian", "years": {"2018": {"deaths": 4, "rate": 0.4}, "2019": {"deaths": 4, "rate": 0.4}, "2020": {"deaths": 6, "rate": 0.6}, "2021": {"deaths": 6, "rate": 0.5}, "2022": {"deaths": 9, "rate": 0.8}, "2023": {"deaths": 8, "rate": 0.7}, "2024": {"deaths": 6, "rate": 0.5}}, "avg_deaths": 43, "avg_rate": 0.6}, {"key": "asian", "name": "Filipino", "category": "Asian", "years": {"2018": {"deaths": 2, "rate": 0.1}, "2019": {"deaths": 2, "rate": 0.1}, "2021": {"deaths": 21, "rate": 0.7}, "2022": {"deaths": 16, "rate": 0.5}, "2023": {"deaths": 11, "rate": 0.3}, "2024": {"deaths": 16, "rate": 0.5}}, "avg_deaths": 68, "avg_rate": 0.4}, {"key": "asian", "name": "Korean", "category": "Asian", "years": {"2021": {"deaths": 4, "rate": 0.3}, "2022": {"deaths": 6, "rate": 0.4}, "2023": {"deaths": 5, "rate": 0.3}, "2024": {"deaths": 6, "rate": 0.4}}, "avg_deaths": 21, "avg_rate": 0.4}, {"key": "asian", "name": "Chinese", "category": "Asian", "years": {"2019": {"deaths": 1, "rate": 0.0}, "2020": {"deaths": 1, "rate": 0.0}, "2021": {"deaths": 8, "rate": 0.2}, "2022": {"deaths": 5, "rate": 0.1}, "2023": {"deaths": 6, "rate": 0.1}, "2024": {"deaths": 2, "rate": 0.0}}, "avg_deaths": 23, "avg_rate": 0.1}, {"key": "asian", "name": "Vietnamese", "category": "Asian", "years": {"2021": {"deaths": 2, "rate": 0.1}, "2022": {"deaths": 3, "rate": 0.1}, "2023": {"deaths": 5, "rate": 0.2}, "2024": {"deaths": 3, "rate": 0.1}}, "avg_deaths": 13, "avg_rate": 0.1}], "detailSectionB": [{"key": "black", "name": "Black", "category": "Broad category", "years": {"2018": {"deaths": 588, "rate": 1.3}, "2019": {"deaths": 543, "rate": 1.2}, "2020": {"deaths": 558, "rate": 1.3}, "2021": {"deaths": 578, "rate": 1.3}, "2022": {"deaths": 545, "rate": 1.2}, "2023": {"deaths": 548, "rate": 1.2}, "2024": {"deaths": 532, "rate": 1.2}}, "avg_deaths": 3892, "avg_rate": 1.3}, {"key": "aian", "name": "American Indian / Alaska Native", "category": "Broad category", "years": {"2018": {"deaths": 35, "rate": 0.8}, "2019": {"deaths": 21, "rate": 0.5}, "2020": {"deaths": 34, "rate": 0.8}, "2021": {"deaths": 48, "rate": 0.8}, "2022": {"deaths": 46, "rate": 0.8}, "2023": {"deaths": 29, "rate": 0.5}, "2024": {"deaths": 38, "rate": 0.6}}, "avg_deaths": 251, "avg_rate": 0.7}, {"key": "white", "name": "White", "category": "Broad category", "years": {"2018": {"deaths": 1030, "rate": 0.4}, "2019": {"deaths": 1057, "rate": 0.4}, "2020": {"deaths": 1072, "rate": 0.5}, "2021": {"deaths": 1103, "rate": 0.5}, "2022": {"deaths": 1038, "rate": 0.5}, "2023": {"deaths": 983, "rate": 0.4}, "2024": {"deaths": 1001, "rate": 0.4}}, "avg_deaths": 7284, "avg_rate": 0.5}, {"key": "other", "name": "Other / Multiracial", "category": "Broad category", "years": {"2022": {"deaths": 40, "rate": 0.1}, "2023": {"deaths": 42, "rate": 0.1}, "2024": {"deaths": 49, "rate": 0.1}}, "avg_deaths": 131, "avg_rate": 0.1}]};
+
+const COLOR = {
+  black: getVar('--c-black'), aian: getVar('--c-aian'), white: getVar('--c-white'),
+  other: getVar('--c-other'), asian: getVar('--c-asian'), pi: getVar('--c-pi')
+};
+function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+const LABELS = {
+  black: 'Black', aian: 'American Indian / Alaska Native', white: 'White',
+  other: 'Other / Multiracial', asian: 'Asian', pi: 'Native Hawaiian / Pacific Islander'
+};
+
+const tooltip = document.getElementById('tooltip');
+function showTip(html, evt){
+  tooltip.innerHTML = html;
+  tooltip.classList.add('show');
+  positionTip(evt);
+}
+function positionTip(evt){
+  const pad = 14;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  const tw = 240, th = 90;
+  if(x + tw > window.innerWidth) x = evt.clientX - tw - pad;
+  if(y + th > window.innerHeight) y = evt.clientY - th - pad;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+function hideTip(){ tooltip.classList.remove('show'); }
+
+/* ================= CHART 1: Horizontal bar — mortality rate ================= */
+function renderRateChart(){
+  const el = document.getElementById('chart-rate');
+  const data = [...DATA.broadSummary].sort((a,b) => b.rate - a.rate);
+  const maxRate = Math.max(...data.map(d => d.rate));
+  el.innerHTML = '';
+  data.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'hbar-row';
+
+    const label = document.createElement('div');
+    label.className = 'hbar-label';
+    label.textContent = d.group;
+    row.appendChild(label);
+
+    const track = document.createElement('div');
+    track.className = 'hbar-track';
+
+    const pct = Math.max((d.rate / maxRate) * 88, 3);
+    const fill = document.createElement('div');
+    fill.className = 'hbar-fill';
+    fill.style.width = '0%';
+    fill.style.background = COLOR[d.key];
+    fill.dataset.target = pct;
+
+    fill.addEventListener('mousemove', (e) => {
+      showTip(`<b>${d.group}</b><br>Rate: ${d.rate.toFixed(1)} per 100,000<br>Deaths: ${d.deaths.toLocaleString()}<br>Population: ${Math.round(d.population).toLocaleString()}`, e);
+    });
+    fill.addEventListener('mouseleave', hideTip);
+
+    const val = document.createElement('span');
+    val.className = 'hbar-value';
+    val.style.left = 'calc(' + pct + '% + 10px)';
+    val.style.color = 'var(--ink)';
+    val.textContent = d.rate.toFixed(1);
+
+    track.appendChild(fill);
+    track.appendChild(val);
+    row.appendChild(track);
+    el.appendChild(row);
+  });
+
+  requestAnimationFrame(() => {
+    el.querySelectorAll('.hbar-fill').forEach(f => {
+      f.style.transition = 'width .7s cubic-bezier(.2,.8,.2,1)';
+      f.style.width = f.dataset.target + '%';
+    });
+  });
+
+  // legend
+  const legend = document.getElementById('legend-row-1');
+  legend.innerHTML = '';
+  data.forEach(d => {
+    const chip = document.createElement('span');
+    chip.className = 'legend-chip';
+    chip.innerHTML = `<span class="legend-swatch" style="background:${COLOR[d.key]}"></span>${d.group}`;
+    legend.appendChild(chip);
+  });
+
+  // callout with computed insight
+  const highest = data[0];
+  const deathData = [...DATA.broadSummary].sort((a,b) => b.deaths - a.deaths);
+  const mostDeaths = deathData[0];
+  document.getElementById('callout-text').innerHTML =
+    `<b>${highest.group}</b> adults have the highest cardiomyopathy mortality rate at <b>${highest.rate.toFixed(1)} per 100,000</b> — nearly ${(highest.rate/data[data.length-1].rate).toFixed(0)}× the lowest group — despite having the smallest population of the six groups. ` +
+    `<b>${mostDeaths.group}</b> adults account for the largest number of deaths overall (<b>${mostDeaths.deaths.toLocaleString()}</b>), reflecting population size rather than a higher underlying rate.`;
+}
+
+/* ================= CHART 2: Vertical bar — death counts ================= */
+function renderDeathsChart(){
+  const el = document.getElementById('chart-deaths');
+  const data = [...DATA.broadSummary].sort((a,b) => b.deaths - a.deaths);
+  const maxDeaths = Math.max(...data.map(d => d.deaths));
+
+  const W = 760, H = 380;
+  const marginL = 56, marginR = 20, marginT = 30, marginB = 78;
+  const plotW = W - marginL - marginR;
+  const plotH = H - marginT - marginB;
+  const n = data.length;
+  const gap = 28;
+  const barW = (plotW - gap * (n - 1)) / n;
+
+  const svgns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'vchart-svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Vertical bar chart of total deaths by group');
+
+  // gridlines + y-axis ticks
+  const ticks = 5;
+  const niceMax = Math.ceil(maxDeaths / 1000) * 1000;
+  for(let i = 0; i <= ticks; i++){
+    const val = (niceMax / ticks) * i;
+    const y = marginT + plotH - (val / niceMax) * plotH;
+    const line = document.createElementNS(svgns, 'line');
+    line.setAttribute('x1', marginL); line.setAttribute('x2', W - marginR);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('stroke', '#E6E1D2');
+    line.setAttribute('stroke-width', 1);
+    svg.appendChild(line);
+
+    const txt = document.createElementNS(svgns, 'text');
+    txt.setAttribute('x', marginL - 10);
+    txt.setAttribute('y', y + 4);
+    txt.setAttribute('text-anchor', 'end');
+    txt.setAttribute('font-size', '11');
+    txt.setAttribute('font-family', 'var(--sans)');
+    txt.setAttribute('fill', '#8C8875');
+    txt.textContent = val.toLocaleString();
+    svg.appendChild(txt);
+  }
+
+  data.forEach((d, i) => {
+    const x = marginL + i * (barW + gap);
+    const barH = (d.deaths / niceMax) * plotH;
+    const y = marginT + plotH - barH;
+
+    const rect = document.createElementNS(svgns, 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', marginT + plotH);
+    rect.setAttribute('width', barW);
+    rect.setAttribute('height', 0);
+    rect.setAttribute('rx', 3);
+    rect.setAttribute('fill', COLOR[d.key]);
+    rect.setAttribute('class', 'vbar');
+    rect.dataset.y = y;
+    rect.dataset.h = barH;
+
+    rect.addEventListener('mousemove', (e) => {
+      showTip(`<b>${d.group}</b><br>Total deaths: ${d.deaths.toLocaleString()}<br>Rate: ${d.rate.toFixed(1)} per 100,000`, e);
+    });
+    rect.addEventListener('mouseleave', hideTip);
+    svg.appendChild(rect);
+
+    // data label
+    const label = document.createElementNS(svgns, 'text');
+    label.setAttribute('x', x + barW / 2);
+    label.setAttribute('y', y - 8);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('font-size', '12.5');
+    label.setAttribute('font-weight', '700');
+    label.setAttribute('font-family', 'var(--mono)');
+    label.setAttribute('fill', '#2A2822');
+    label.setAttribute('opacity', '0');
+    label.dataset.fadeIn = '1';
+    label.textContent = d.deaths.toLocaleString();
+    svg.appendChild(label);
+
+    // category label (wrapped)
+    const words = d.group.split(' ');
+    const lineGroups = wrapLabel(words, 15);
+    lineGroups.forEach((line, li) => {
+      const catLabel = document.createElementNS(svgns, 'text');
+      catLabel.setAttribute('x', x + barW / 2);
+      catLabel.setAttribute('y', marginT + plotH + 18 + li * 13);
+      catLabel.setAttribute('text-anchor', 'middle');
+      catLabel.setAttribute('font-size', '11.5');
+      catLabel.setAttribute('font-family', 'var(--sans)');
+      catLabel.setAttribute('fill', '#63604F');
+      catLabel.textContent = line;
+      svg.appendChild(catLabel);
+    });
+  });
+
+  // axis line
+  const axisLine = document.createElementNS(svgns, 'line');
+  axisLine.setAttribute('x1', marginL); axisLine.setAttribute('x2', W - marginR);
+  axisLine.setAttribute('y1', marginT + plotH); axisLine.setAttribute('y2', marginT + plotH);
+  axisLine.setAttribute('stroke', '#B9B29C');
+  axisLine.setAttribute('stroke-width', 1.2);
+  svg.appendChild(axisLine);
+
+  // y axis title
+  const yTitle = document.createElementNS(svgns, 'text');
+  yTitle.setAttribute('x', -(marginT + plotH/2));
+  yTitle.setAttribute('y', 16);
+  yTitle.setAttribute('transform', 'rotate(-90)');
+  yTitle.setAttribute('text-anchor', 'middle');
+  yTitle.setAttribute('font-size', '11.5');
+  yTitle.setAttribute('fill', '#8C8875');
+  yTitle.textContent = 'Total deaths (2018–2024)';
+  svg.appendChild(yTitle);
+
+  el.innerHTML = '';
+  el.appendChild(svg);
+
+  requestAnimationFrame(() => {
+    svg.querySelectorAll('.vbar').forEach(r => {
+      r.style.transition = 'y .7s cubic-bezier(.2,.8,.2,1), height .7s cubic-bezier(.2,.8,.2,1)';
+      r.setAttribute('y', r.dataset.y);
+      r.setAttribute('height', r.dataset.h);
+    });
+    svg.querySelectorAll('text[data-fade-in]').forEach(t => {
+      t.style.transition = 'opacity .5s ease .5s';
+      t.setAttribute('opacity', '1');
+    });
+  });
+}
+function wrapLabel(words, maxChars){
+  const lines = []; let cur = '';
+  words.forEach(w => {
+    if((cur + ' ' + w).trim().length > maxChars && cur){ lines.push(cur.trim()); cur = w; }
+    else { cur = (cur + ' ' + w).trim(); }
+  });
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+/* ================= DETAIL TABLE (heatmap) ================= */
+let currentMode = 'rate';
+
+function allDetailRows(){ return [...DATA.detailSectionA, ...DATA.detailSectionB]; }
+
+function colorScaleDomain(mode){
+  const rows = allDetailRows();
+  let max = 0;
+  rows.forEach(r => {
+    DATA.years.forEach(y => {
+      const cell = r.years[y];
+      if(cell){ const v = mode === 'rate' ? cell.rate : cell.deaths; if(v > max) max = v; }
+    });
+    const avgVal = mode === 'rate' ? r.avg_rate : r.avg_deaths;
+    if(avgVal > max) max = avgVal;
+  });
+  return max;
+}
+
+function heatColor(t){
+  t = Math.max(0, Math.min(1, t));
+  const c0 = [244,238,221], c1 = [122,36,24];
+  const r = Math.round(c0[0] + (c1[0]-c0[0])*t);
+  const g = Math.round(c0[1] + (c1[1]-c0[1])*t);
+  const b = Math.round(c0[2] + (c1[2]-c0[2])*t);
+  return `rgb(${r},${g},${b})`;
+}
+
+function renderHeatTable(){
+  const table = document.getElementById('heat-table');
+  const max = colorScaleDomain(currentMode);
+  table.innerHTML = '';
+
+  const thead = document.createElement('thead');
+  const trh = document.createElement('tr');
+  const thSub = document.createElement('th');
+  thSub.className = 'subgroup-head';
+  thSub.textContent = 'Subgroup';
+  trh.appendChild(thSub);
+  DATA.years.forEach(y => {
+    const th = document.createElement('th');
+    th.className = 'year-head';
+    th.textContent = y;
+    trh.appendChild(th);
+  });
+  const thAvg = document.createElement('th');
+  thAvg.className = 'avg-head';
+  thAvg.textContent = '7-YR AVG';
+  trh.appendChild(thAvg);
+  thead.appendChild(trh);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  function addSection(title, rows){
+    const trLabel = document.createElement('tr');
+    trLabel.className = 'section-label';
+    const td = document.createElement('td');
+    td.colSpan = DATA.years.length + 2;
+    td.textContent = title;
+    trLabel.appendChild(td);
+    tbody.appendChild(trLabel);
+
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.className = 'subgroup-cell';
+      tdName.innerHTML = `<span class="dot" style="background:${COLOR[r.key]}"></span>${r.name}`;
+      tr.appendChild(tdName);
+
+      DATA.years.forEach(y => {
+        const cell = r.years[y];
+        const td = document.createElement('td');
+        td.className = 'val-cell';
+        if(!cell){
+          td.classList.add('na');
+          td.innerHTML = `<div class="cell-inner">–</div>`;
+        } else {
+          const val = currentMode === 'rate' ? cell.rate : cell.deaths;
+          const bg = heatColor(val / max);
+          const light = (val / max) > 0.55;
+          const displayVal = currentMode === 'rate' ? val.toFixed(1) : val.toLocaleString();
+          const unstable = cell.deaths < 10;
+          td.innerHTML = `<div class="cell-inner" style="background:${bg};color:${light ? '#F8F4E8' : '#2A2822'}">${displayVal}${unstable ? '<span class="unstable-mark">⬤</span>' : ''}</div>`;
+          td.addEventListener('mousemove', (e) => {
+            showTip(`<b>${r.name} · ${y}</b><br>Deaths: ${cell.deaths.toLocaleString()}<br>Rate: ${cell.rate.toFixed(1)} per 100,000${unstable ? '<br><i>Fewer than 10 deaths — unstable estimate</i>' : ''}`, e);
+          });
+          td.addEventListener('mouseleave', hideTip);
+        }
+        tr.appendChild(td);
+      });
+
+      const tdAvg = document.createElement('td');
+      tdAvg.className = 'val-cell avg';
+      const avgVal = currentMode === 'rate' ? r.avg_rate : r.avg_deaths;
+      const bgAvg = heatColor(avgVal / max);
+      const lightAvg = (avgVal / max) > 0.55;
+      const avgDisplay = currentMode === 'rate' ? avgVal.toFixed(1) : avgVal.toLocaleString();
+      const avgUnstable = r.avg_deaths < 10;
+      tdAvg.innerHTML = `<div class="cell-inner" style="background:${bgAvg};color:${lightAvg ? '#F8F4E8' : '#2A2822'}">${avgDisplay}${avgUnstable ? '<span class="unstable-mark">⬤</span>' : ''}</div>`;
+      tdAvg.addEventListener('mousemove', (e) => {
+        showTip(`<b>${r.name} · 2018–2024</b><br>Total deaths: ${r.avg_deaths.toLocaleString()}<br>Combined rate: ${r.avg_rate.toFixed(1)} per 100,000`, e);
+      });
+      tdAvg.addEventListener('mouseleave', hideTip);
+      tr.appendChild(tdAvg);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  addSection('Asian & Native Hawaiian / Pacific Islander subgroups', DATA.detailSectionA);
+  addSection('Broader race / ethnicity categories', DATA.detailSectionB);
+
+  table.appendChild(tbody);
+}
+
+/* ================= Interactions ================= */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode = btn.dataset.mode;
+    renderHeatTable();
+  });
+});
+
+document.addEventListener('mousemove', (e) => {
+  if(tooltip.classList.contains('show')) positionTip(e);
+});
+
+renderRateChart();
+renderDeathsChart();
+renderHeatTable();
+
+window.addEventListener('resize', () => { renderDeathsChart(); });
+</script>
+
+</body>
+</html>
