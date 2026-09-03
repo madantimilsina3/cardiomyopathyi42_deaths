@@ -1,0 +1,74 @@
+year,race_category,deaths,population,mortality_rate_per_100k
+2018,American Indian and Alaskan Native,35,4255998.5,0.8
+2018,Black,588,43939624.5,1.3
+2018,White,1030,241016624.0,0.4
+2019,American Indian and Alaskan Native,21,4256268.0,0.5
+2019,Black,543,44351760.5,1.2
+2019,White,1057,241354738.5,0.4
+2020,American Indian and Alaskan Native,34,4234216.0,0.8
+2020,Black,558,43750558.5,1.3
+2020,White,1072,237533295.5,0.5
+2021,American Indian and Alaskan Native,48,5954799.0,0.8
+2021,Black,578,43714265.5,1.3
+2021,White,1103,222408970.5,0.5
+2022,American Indian and Alaskan Native,46,5878301.5,0.8
+2022,Black,545,44231708.0,1.2
+2022,Others,40,48946852.5,0.1
+2022,White,1038,222269531.5,0.5
+2023,American Indian and Alaskan Native,29,6096170.0,0.5
+2023,Black,548,44415281.5,1.2
+2023,Others,42,50145568.5,0.1
+2023,White,983,222445061.0,0.4
+2024,American Indian and Alaskan Native,38,6270481.0,0.6
+2024,Black,532,45160366.5,1.2
+2024,Others,49,52701224.5,0.1
+2024,White,1001,224163994.0,0.4
+2018,Asian Indian,4,941595.0,0.4
+2018,Filipino,2,3011610.0,0.1
+2018,Japanese,15,786491.0,1.9
+2019,Asian Indian,4,965173.0,0.4
+2019,Chinese,1,4404678.0,0.0
+2019,Filipino,2,3086314.0,0.1
+2019,Japanese,13,758627.0,1.7
+2020,Asian Indian,6,926598.0,0.6
+2020,Chinese,1,4345272.0,0.0
+2020,Japanese,13,772511.0,1.7
+2021,Asian Indian,6,1113658.0,0.5
+2021,Chinese,8,4360466.0,0.2
+2021,Filipino,21,3070006.0,0.7
+2021,Hawaiian,1,185391.0,0.5
+2021,Japanese,1,748196.0,0.1
+2021,Korean,4,1445315.0,0.3
+2021,Other Asian,15,966626.0,1.6
+2021,Other Pacific Islander,3,73219.0,4.1
+2021,Samoan,13,165778.0,7.8
+2021,Vietnamese,2,2169098.0,0.1
+2022,Asian Indian,9,1142545.0,0.8
+2022,Chinese,5,4530138.0,0.1
+2022,Filipino,16,3079861.0,0.5
+2022,Hawaiian,1,185466.0,0.5
+2022,Japanese,2,725058.0,0.3
+2022,Korean,6,1501587.0,0.4
+2022,Other Asian,22,1010386.0,2.2
+2022,Other Pacific Islander,5,91903.0,5.4
+2022,Samoan,9,164680.0,5.5
+2022,Vietnamese,3,2168412.0,0.1
+2023,Asian Indian,8,1189446.0,0.7
+2023,Chinese,6,4498443.0,0.1
+2023,Filipino,11,3206294.0,0.3
+2023,Guamanian or Chamorro,1,93989.0,1.1
+2023,Hawaiian,3,175823.0,1.7
+2023,Japanese,1,733447.0,0.1
+2023,Korean,5,1466761.0,0.3
+2023,Other Asian,14,1044516.0,1.3
+2023,Other Pacific Islander,6,82805.0,7.2
+2023,Samoan,5,182225.0,2.7
+2023,Vietnamese,5,2165879.0,0.2
+2024,Asian Indian,6,1280437.0,0.5
+2024,Chinese,2,4810787.0,0.0
+2024,Filipino,16,3380588.0,0.5
+2024,Korean,6,1567452.0,0.4
+2024,Other Asian,14,1263460.0,1.1
+2024,Other Pacific Islander,3,82131.0,3.7
+2024,Samoan,7,164773.0,4.2
+2024,Vietnamese,3,2253893.0,0.1
