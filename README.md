@@ -1,7 +1,7 @@
 # The Silent Burden of Heart Disease in Young America
 
 **Project by:** Madan Timilsina <br>
-**Date:** 23 August, 2026
+**Project completion:** 23 August, 2026
 
 ---
 
